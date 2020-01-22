@@ -1,0 +1,22 @@
+PixelType List:  
+1 : PixelType_Mono8 
+2 : PixelType_Mono10 
+3 : PixelType_Mono12 
+4 : PixelType_BayerBG8 
+5 : PixelType_BayerBG12 
+6 : PixelType_BayerGB8 
+7 : PixelType_BayerGB12 
+8 : PixelType_BayerGR8 
+9 : PixelType_BayerGR12 
+10: PixelType_BayerRG8 
+11: PixelType_BayerRG12 
+12: PixelType_RGB8packed 
+13: PixelType_BGR8packed 
+14: PixelType_YUV422_YUYV_Packed 
+15: PixelFormat_YCbCr422_8 
+
+FileFormat List:  
+1: BMP 
+2: TIFF 
+3: JPG 
+4: PNG 
