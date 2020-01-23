@@ -27,7 +27,7 @@
        a. Drag-n-Drop the file `parseme_640_480_1_2_blahblah.raw` onto the .exe icon.  
        b. `PylonRawFileConverter --parse --file parseme_640_480_1_2_blahblah.raw`  
        c. `PylonRawFileConverter --parse --parseprefix myPrefix --file myPrefix_640_480_1_2_blahblah.raw`  
-   4. Parse and convert all raw files in current directory: (filenames MUST be in the above style.)  
+   4. Parse and convert a batch of files: (convert all files in current directory that have a parseable file name.)    
        a. `PylonRawFileConverter --batch --parse`  
        b. `PylonRawFileConverter --batch --parse --parseprefix myPrefix`  
 		 

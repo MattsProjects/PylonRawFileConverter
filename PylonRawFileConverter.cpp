@@ -279,7 +279,7 @@ bool RawFileConverter(std::string fileName, uint32_t imageWidth, uint32_t imageH
 void PrintHelpMenu()
 {
 	std::cout << std::endl;
-	std::cout << "PylonRawFileConverter:" << std::endl;
+	std::cout << "Description:" << std::endl;
 	std::cout << " Converts a Pylon Viewer .raw image file to a different format like .png, .tiff, .jpg, .bmp." << std::endl;
 	std::cout << " Run \"PylonRawFileConverter.exe --help\" to display these instructions." << std::endl;
 	std::cout << std::endl;
@@ -308,7 +308,7 @@ void PrintHelpMenu()
 	std::cout << "     Drag-n-Drop the file " << PARSE_PREFIX_DEFAULT << "_640_480_1_2_blahblah.raw onto the .exe icon." << std::endl;
 	std::cout << "     PylonRawFileConverter.exe --parse --file " << PARSE_PREFIX_DEFAULT << "_640_480_1_2_blahblah.raw" << std::endl;
 	std::cout << "     PylonRawFileConverter.exe --parse --parseprefix myPrefix --file myPrefix_640_480_1_2_blahblah.raw" << std::endl;
-	std::cout << " 4. Parse and convert all raw files in current directory: (filenames MUST be in the above style.)" << std::endl;
+	std::cout << " 4. Parse and convert a batch of files: (convert all files in current directory that have a parseable file name.)" << std::endl;
 	std::cout << "     PylonRawFileConverter.exe --batch --parse" << std::endl;
 	std::cout << "     PylonRawFileConverter.exe --batch --parse --parseprefix myPrefix" << std::endl;
 	std::cout << std::endl;
@@ -335,9 +335,6 @@ void PrintHelpMenu()
 	std::cout << " 3: BMP" << std::endl;
 	std::cout << " 4: JPG" << std::endl;
 	std::cout << std::endl;
-	std::cout << "Copyright (c) 2019 Matthew Breit - matt.breit@baslerweb.com or matt.breit@gmail.com" << std::endl;
-	std::cout << "Licensed under the Apache License, Version 2.0 (http ://www.apache.org/licenses/LICENSE-2.0)" << std::endl;
-	std::cout << "Distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND." << std::endl;
 }
 
 bool ParseFileName(std::string &rawFileName, std::string prefix, int numFields, uint32_t &rawWidth, uint32_t &rawHeight, int &rawPixelType_int, int &newFileFormat_int)
@@ -507,20 +504,30 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-		else
+		
+		if (silent == false)
 		{
+			std::cout << std::endl;
 			std::cout << "PylonRawFileConverter" << std::endl;
 			std::cout << "(c) 2019 Matthew Breit - matt.breit@baslerweb.com or matt.breit@gmail.com" << std::endl;
 			std::cout << "Run \"PylonRawFileConverter --help\" for instructions and options." << std::endl;
 			std::cout << std::endl;
-			std::cout << "Enter Filename of .raw Image (or enter \"batch\" to convert all files in directory): ";
-			std::cin >> rawFileName;
+		}
 
-			if (rawFileName == "batch")
+		if (parseMode == false)
+		{
+			if (batchMode == false)
+			{
+				std::cout << std::endl;
+				std::cout << "Enter Filename of .raw Image (or enter \"batch\" to convert all files in directory): ";
+				std::cin >> rawFileName;
+			}
+			if (rawFileName == "batch" || batchMode == true)
 			{
 				batchMode = true;
 				std::cout << std::endl;
-				std::cout << "**** Batch mode selected. All images MUST have the same Width, Height, Pixel Type, and Target File Format! ****" << std::endl;;
+				std::cout << "**** Batch mode selected. All images MUST have same Width, Height, Pixel Type, and Target File Format! ****" << std::endl;
+				std::cout << std::endl;
 			}
 
 			std::cout << "Enter Image Width: ";
@@ -559,7 +566,27 @@ int main(int argc, char* argv[])
 			std::cin >> newFileFormat_int;
 		}
 
-		if (batchMode == true)
+		if (batchMode == false)
+		{
+			if (silent == false)
+			{
+				std::cout << std::endl;
+				std::cout << "Converting File: " << rawFileName << "..." << std::endl;
+			}
+
+			if (parseMode == true)
+			{
+				if (ParseFileName(rawFileName, parsePrefix, PARSE_NUM_FIELDS, rawWidth, rawHeight, rawPixelType_int, newFileFormat_int) == false)
+					throw std::runtime_error("ParseFileName() failed.");
+			}
+
+			rawPixelType = PixelTypeFromInt(rawPixelType_int);
+			newFileFormat = FileFormatFromInt(newFileFormat_int);
+
+			if (RawFileConverter(rawFileName, rawWidth, rawHeight, rawPixelType, newFileFormat) == false)
+				throw std::runtime_error("RawFileConverter() failed.");
+		}
+		else
 		{
 			std::vector<std::string> fileNames;
 #ifdef PYLON_WIN_BUILD
@@ -600,46 +627,36 @@ int main(int argc, char* argv[])
 			{
 				rawFileName = fileNames[i];
 
-				if (silent == false)
+				if (fileNames[i].find(parsePrefix) != std::string::npos)
 				{
-					std::cout << std::endl;
-					std::cout << "Converting File: " << rawFileName << "..." << std::endl;
-				}
+					if (silent == false)
+					{
+						std::cout << std::endl;
+						std::cout << "Converting File: " << rawFileName << "..." << std::endl;
+					}
 
-				if (parseMode == true)
+					if (parseMode == true)
+					{
+						if (ParseFileName(rawFileName, parsePrefix, PARSE_NUM_FIELDS, rawWidth, rawHeight, rawPixelType_int, newFileFormat_int) == false)
+							throw std::runtime_error("ParseFileName() failed.");
+					}
+
+					rawPixelType = PixelTypeFromInt(rawPixelType_int);
+					newFileFormat = FileFormatFromInt(newFileFormat_int);
+
+					if (RawFileConverter(rawFileName, rawWidth, rawHeight, rawPixelType, newFileFormat) == false)
+						throw std::runtime_error("RawFileConverter() failed.");
+				}
+				else
 				{
-					if (ParseFileName(rawFileName, parsePrefix, PARSE_NUM_FIELDS, rawWidth, rawHeight, rawPixelType_int, newFileFormat_int) == false)
-						throw std::runtime_error("ParseFileName() failed.");
+					if (silent == false)
+					{
+						std::cout << std::endl;
+						std::cout << "Skipping File: " << rawFileName << "..." << std::endl;
+					}
 				}
-
-				rawPixelType = PixelTypeFromInt(rawPixelType_int);
-				newFileFormat = FileFormatFromInt(newFileFormat_int);
-
-				if (RawFileConverter(rawFileName, rawWidth, rawHeight, rawPixelType, newFileFormat) == false)
-					throw std::runtime_error("RawFileConverter() failed.");
 			}
 		}
-		else
-		{
-			if (silent == false)
-			{
-				std::cout << std::endl;
-				std::cout << "Converting File: " << rawFileName << "..." << std::endl;
-			}
-
-			if (parseMode == true)
-			{
-				if (ParseFileName(rawFileName, parsePrefix, PARSE_NUM_FIELDS, rawWidth, rawHeight, rawPixelType_int, newFileFormat_int) == false)
-					throw std::runtime_error("ParseFileName() failed.");
-			}
-
-			rawPixelType = PixelTypeFromInt(rawPixelType_int);
-			newFileFormat = FileFormatFromInt(newFileFormat_int);
-
-			if (RawFileConverter(rawFileName, rawWidth, rawHeight, rawPixelType, newFileFormat) == false)
-				throw std::runtime_error("RawFileConverter() failed.");
-		}
-
 	}
 	catch (GenICam::GenericException &e)
 	{
