@@ -22,7 +22,7 @@
 #include <fstream>
 #include <stdexcept>
 #ifndef PYLON_WIN_BUILD
-#include <dirent.h> // For Listing all files in a directory in Utility_ZipAllFiles().
+#include <dirent.h> // For Listing all files in a directory in Linux.
 #endif
 
 using namespace Pylon;
