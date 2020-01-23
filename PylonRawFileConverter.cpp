@@ -30,6 +30,7 @@ using namespace std;
 
 #define PARSE_PREFIX_DEFAULT "parseme"
 #define PARSE_NUM_FIELDS 6
+#define VERSION_NUMBER "v19.02-1 (BETA)"
 
 bool pauseBeforeExit = true;
 bool silent = false;
@@ -279,7 +280,7 @@ bool RawFileConverter(std::string fileName, uint32_t imageWidth, uint32_t imageH
 void PrintHelpMenu()
 {
 	std::cout << std::endl;
-	std::cout << "PylonRawFileConverter" << std::endl;
+	std::cout << "PylonRawFileConverter " << VERSION_NUMBER << std::endl;
 	std::cout << "(c) 2019 Matthew Breit - matt.breit@baslerweb.com or matt.breit@gmail.com" << std::endl;
 	std::cout << "Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)" << std::endl;
 	std::cout << "Distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND." << std::endl;
@@ -515,7 +516,7 @@ int main(int argc, char* argv[])
 		if (silent == false)
 		{
 			std::cout << std::endl;
-			std::cout << "PylonRawFileConverter" << std::endl;
+			std::cout << "PylonRawFileConverter " << VERSION_NUMBER << std::endl;
 			std::cout << "(c) 2019 Matthew Breit - matt.breit@baslerweb.com or matt.breit@gmail.com" << std::endl;
 			std::cout << "Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)" << std::endl;
 			std::cout << "Distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND." << std::endl;
