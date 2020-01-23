@@ -279,6 +279,12 @@ bool RawFileConverter(std::string fileName, uint32_t imageWidth, uint32_t imageH
 void PrintHelpMenu()
 {
 	std::cout << std::endl;
+	std::cout << "PylonRawFileConverter" << std::endl;
+	std::cout << "(c) 2019 Matthew Breit - matt.breit@baslerweb.com or matt.breit@gmail.com" << std::endl;
+	std::cout << "Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)" << std::endl;
+	std::cout << "Distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND." << std::endl;
+	std::cout << "Run \"PylonRawFileConverter --help\" for instructions and options." << std::endl;
+	std::cout << std::endl;
 	std::cout << "Description:" << std::endl;
 	std::cout << " Converts a Pylon Viewer .raw image file to a different format like .png, .tiff, .jpg, .bmp." << std::endl;
 	std::cout << " Run \"PylonRawFileConverter.exe --help\" to display these instructions." << std::endl;
@@ -495,6 +501,7 @@ int main(int argc, char* argv[])
 					else
 					{
 						cout << endl << "INVALID OPTION: " << argument << endl;
+						PrintHelpMenu();
 						cout << endl;
 						cout << endl;
 						cout << "Press Enter to exit." << endl;
@@ -510,6 +517,8 @@ int main(int argc, char* argv[])
 			std::cout << std::endl;
 			std::cout << "PylonRawFileConverter" << std::endl;
 			std::cout << "(c) 2019 Matthew Breit - matt.breit@baslerweb.com or matt.breit@gmail.com" << std::endl;
+			std::cout << "Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)" << std::endl;
+			std::cout << "Distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND." << std::endl;
 			std::cout << "Run \"PylonRawFileConverter --help\" for instructions and options." << std::endl;
 			std::cout << std::endl;
 		}
