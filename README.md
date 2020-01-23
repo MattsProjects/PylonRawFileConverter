@@ -28,8 +28,8 @@
        b. `PylonRawFileConverter --parse --file parseme_640_480_1_2_blahblah.raw`  
        c. `PylonRawFileConverter --parse --parseprefix myPrefix --file myPrefix_640_480_1_2_blahblah.raw`  
    4. Parse and convert all raw files in current directory: (filenames MUST be in the above style.)  
-       a. `PylonRawFileConverter --batch --parse'  
-       b. `PylonRawFileConverter --batch --parse --parseprefix myPrefix'  
+       a. `PylonRawFileConverter --batch --parse`  
+       b. `PylonRawFileConverter --batch --parse --parseprefix myPrefix`  
 		 
 ## Pixel Type List:  
    `1` : PixelType_Mono8  
