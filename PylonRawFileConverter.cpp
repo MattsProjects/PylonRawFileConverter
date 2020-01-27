@@ -28,6 +28,11 @@
 using namespace Pylon;
 using namespace std;
 
+#define NO_FILENAME_GIVEN ""
+#define NO_WIDTH_GIVEN -1
+#define NO_HEIGHT_GIVEN -1
+#define NO_PIXELTYPE_GIVEN -1
+#define NO_FILEFORMAT_GIVEN -1
 #define PARSE_PREFIX_DEFAULT "parseme"
 #define PARSE_NUM_FIELDS 6
 #define VERSION_NUMBER "v19.02-1 (BETA)"
@@ -46,28 +51,30 @@ Pylon::PixelType PixelTypeFromInt(int pixelTypeID)
 		case 3:
 			return Pylon::EPixelType::PixelType_Mono12;
 		case 4:
-			return Pylon::EPixelType::PixelType_BayerBG8;
+			return Pylon::EPixelType::PixelType_Mono16;
 		case 5:
-			return Pylon::EPixelType::PixelType_BayerBG12;
+			return Pylon::EPixelType::PixelType_BayerBG8;
 		case 6:
-			return Pylon::EPixelType::PixelType_BayerGB8;
+			return Pylon::EPixelType::PixelType_BayerBG12;
 		case 7:
-			return Pylon::EPixelType::PixelType_BayerGB12;
+			return Pylon::EPixelType::PixelType_BayerGB8;
 		case 8:
-			return Pylon::EPixelType::PixelType_BayerGR8;
+			return Pylon::EPixelType::PixelType_BayerGB12;
 		case 9:
-			return Pylon::EPixelType::PixelType_BayerGR12;
+			return Pylon::EPixelType::PixelType_BayerGR8;
 		case 10:
-			return Pylon::EPixelType::PixelType_BayerRG8;
+			return Pylon::EPixelType::PixelType_BayerGR12;
 		case 11:
-			return Pylon::EPixelType::PixelType_BayerRG12;
+			return Pylon::EPixelType::PixelType_BayerRG8;
 		case 12:
-			return Pylon::EPixelType::PixelType_RGB8packed;
+			return Pylon::EPixelType::PixelType_BayerRG12;
 		case 13:
-			return Pylon::EPixelType::PixelType_BGR8packed;
+			return Pylon::EPixelType::PixelType_RGB8packed;
 		case 14:
-			return Pylon::EPixelType::PixelType_YUV422_YUYV_Packed;
+			return Pylon::EPixelType::PixelType_BGR8packed;
 		case 15:
+			return Pylon::EPixelType::PixelType_YUV422_YUYV_Packed;
+		case 16:
 			return Pylon::EPixelType::PixelType_YUV422_YUYV_Packed;
 		default:
 			throw std::runtime_error("Invalid Pixel Type Selection");
@@ -119,10 +126,18 @@ void LoadRaw(const Pylon::String_t& fileName, Pylon::CPylonImage& image, uint32_
 
 			if (Pylon::BitPerPixel(pixelType) == 8)
 				imageSize = (width * height);
-			if (Pylon::BitPerPixel(pixelType) == 10)
+			else if (Pylon::BitPerPixel(pixelType) == 10)
 				imageSize = (width * height) * 1.25;
-			if (Pylon::BitPerPixel(pixelType) == 12)
+			else if (Pylon::BitPerPixel(pixelType) == 12)
 				imageSize = (width * height) * 1.5;
+			else if (Pylon::BitPerPixel(pixelType) == 16)
+				imageSize = (width * height) * 2;
+			else
+			{
+				errorMessage.append("Less than 8 bits per pixel or more than 16bits per pixel is not supported yet.");
+				myFile.close();
+				throw std::runtime_error(errorMessage.c_str());
+			}
 
 			if ((double)fileSize != imageSize)
 			{
@@ -249,9 +264,9 @@ bool RawFileConverter(std::string fileName, uint32_t imageWidth, uint32_t imageH
 
 		if (silent == false)
 			std::cout << "Converting and Saving Image..." << std::endl;
-		
+
 		Pylon::CImagePersistence::Save(destinationFileFormat, newFileName.c_str(), tempImage);
-		
+
 		if (silent == false)
 			std::cout << "Image saved as: " << newFileName << std::endl;
 
@@ -322,19 +337,20 @@ void PrintHelpMenu()
 	std::cout << "Pixel Type List: " << std::endl;
 	std::cout << " 1 : PixelType_Mono8" << std::endl;
 	std::cout << " 2 : PixelType_Mono10" << std::endl;
-	std::cout << " 3 : PixelType_Mono12" << std::endl; 
-	std::cout << " 4 : PixelType_BayerBG8" << std::endl;
-	std::cout << " 5 : PixelType_BayerBG12" << std::endl;
-	std::cout << " 6 : PixelType_BayerGB8" << std::endl;
-	std::cout << " 7 : PixelType_BayerGB12" << std::endl;
-	std::cout << " 8 : PixelType_BayerGR8" << std::endl;
-	std::cout << " 9 : PixelType_BayerGR12" << std::endl;
-	std::cout << " 10: PixelType_BayerRG8" << std::endl;
-	std::cout << " 11: PixelType_BayerRG12" << std::endl;
-	std::cout << " 12: PixelType_RGB8packed" << std::endl;
-	std::cout << " 13: PixelType_BGR8packed" << std::endl;
-	std::cout << " 14: PixelType_YUV422_YUYV_Packed" << std::endl;
-	std::cout << " 15: PixelFormat_YCbCr422_8" << std::endl;
+	std::cout << " 3 : PixelType_Mono12" << std::endl;
+	std::cout << " 4 : PixelType_Mono16" << std::endl;
+	std::cout << " 5 : PixelType_BayerBG8" << std::endl;
+	std::cout << " 6 : PixelType_BayerBG12" << std::endl;
+	std::cout << " 7 : PixelType_BayerGB8" << std::endl;
+	std::cout << " 8 : PixelType_BayerGB12" << std::endl;
+	std::cout << " 9 : PixelType_BayerGR8" << std::endl;
+	std::cout << " 10 : PixelType_BayerGR12" << std::endl;
+	std::cout << " 11: PixelType_BayerRG8" << std::endl;
+	std::cout << " 12: PixelType_BayerRG12" << std::endl;
+	std::cout << " 13: PixelType_RGB8packed" << std::endl;
+	std::cout << " 14: PixelType_BGR8packed" << std::endl;
+	std::cout << " 15: PixelType_YUV422_YUYV_Packed" << std::endl;
+	std::cout << " 16: PixelFormat_YCbCr422_8" << std::endl;
 	std::cout << std::endl;
 	std::cout << "File Format List: " << std::endl;
 	std::cout << " 1: TIFF" << std::endl;
@@ -424,13 +440,13 @@ int main(int argc, char* argv[])
 		bool batchMode = false;
 		bool parseMode = false;
 		string parsePrefix = PARSE_PREFIX_DEFAULT;
-		string rawFileName = "";
-		uint32_t rawWidth = 0;
-		uint32_t rawHeight = 0;
-		int rawPixelType_int = 0;
-		int newFileFormat_int = 0;
+		string rawFileName = NO_FILENAME_GIVEN;
+		uint32_t rawWidth = NO_WIDTH_GIVEN;
+		uint32_t rawHeight = NO_HEIGHT_GIVEN;
+		int rawPixelType_int = NO_PIXELTYPE_GIVEN;
+		int newFileFormat_int = NO_FILEFORMAT_GIVEN;
 		Pylon::EPixelType rawPixelType;
-		Pylon::EImageFileFormat newFileFormat;		
+		Pylon::EImageFileFormat newFileFormat;
 
 		if (argc > 1)
 		{
@@ -512,7 +528,7 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-		
+
 		if (silent == false)
 		{
 			std::cout << std::endl;
@@ -528,52 +544,70 @@ int main(int argc, char* argv[])
 		{
 			if (batchMode == false)
 			{
-				std::cout << std::endl;
-				std::cout << "Enter Filename of .raw Image (or enter \"batch\" to convert all files in directory): ";
-				std::cin >> rawFileName;
+				if (rawFileName == NO_FILENAME_GIVEN)
+				{
+					std::cout << std::endl;
+					std::cout << "Enter Filename of .raw Image (or enter \"batch\" to convert all files in directory): ";
+					std::cin >> rawFileName;
+				}
 			}
 			if (rawFileName == "batch" || batchMode == true)
 			{
 				batchMode = true;
-				std::cout << std::endl;
-				std::cout << "**** Batch mode selected. All images MUST have same Width, Height, Pixel Type, and Target File Format! ****" << std::endl;
-				std::cout << std::endl;
+				if (silent == false)
+				{
+					std::cout << std::endl;
+					std::cout << "**** Batch mode selected. All images MUST have same Width, Height, Pixel Type, and Target File Format! ****" << std::endl;
+					std::cout << std::endl;
+				}
 			}
 
-			std::cout << "Enter Image Width: ";
-			std::cin >> rawWidth;
+			if (rawWidth == NO_WIDTH_GIVEN)
+			{
+				std::cout << "Enter Image Width: ";
+				std::cin >> rawWidth;
+			}
 
-			std::cout << "Enter Image Height: ";
-			std::cin >> rawHeight;
+			if (rawHeight == NO_HEIGHT_GIVEN)
+			{
+				std::cout << "Enter Image Height: ";
+				std::cin >> rawHeight;
+			}
 
-			std::cout << "Select Pixel Type from list below: " << std::endl;
-			std::cout << " 1 : PixelType_Mono8" << std::endl;
-			std::cout << " 2 : PixelType_Mono10" << std::endl;
-			std::cout << " 3 : PixelType_Mono12" << std::endl;
-			std::cout << " 4 : PixelType_BayerBG8" << std::endl;
-			std::cout << " 5 : PixelType_BayerBG12" << std::endl;
-			std::cout << " 6 : PixelType_BayerGB8" << std::endl;
-			std::cout << " 7 : PixelType_BayerGB12" << std::endl;
-			std::cout << " 8 : PixelType_BayerGR8" << std::endl;
-			std::cout << " 9 : PixelType_BayerGR12" << std::endl;
-			std::cout << " 10: PixelType_BayerRG8" << std::endl;
-			std::cout << " 11: PixelType_BayerRG12" << std::endl;
-			std::cout << " 12: PixelType_RGB8packed" << std::endl;
-			std::cout << " 13: PixelType_BGR8packed" << std::endl;
-			std::cout << " 14: PixelType_YUV422_YUYV_Packed" << std::endl;
-			std::cout << " 15: PixelFormat_YCbCr422_8" << std::endl;
-			std::cout << "Enter Selection: ";
-			std::cin >> rawPixelType_int;
+			if (rawPixelType_int == NO_PIXELTYPE_GIVEN)
+			{
+				std::cout << "Select Pixel Type from list below: " << std::endl;
+				std::cout << " 1 : PixelType_Mono8" << std::endl;
+				std::cout << " 2 : PixelType_Mono10" << std::endl;
+				std::cout << " 3 : PixelType_Mono12" << std::endl;
+				std::cout << " 4 : PixelType_BayerBG8" << std::endl;
+				std::cout << " 5 : PixelType_BayerBG12" << std::endl;
+				std::cout << " 6 : PixelType_BayerGB8" << std::endl;
+				std::cout << " 7 : PixelType_BayerGB12" << std::endl;
+				std::cout << " 8 : PixelType_BayerGR8" << std::endl;
+				std::cout << " 9 : PixelType_BayerGR12" << std::endl;
+				std::cout << " 10: PixelType_BayerRG8" << std::endl;
+				std::cout << " 11: PixelType_BayerRG12" << std::endl;
+				std::cout << " 12: PixelType_RGB8packed" << std::endl;
+				std::cout << " 13: PixelType_BGR8packed" << std::endl;
+				std::cout << " 14: PixelType_YUV422_YUYV_Packed" << std::endl;
+				std::cout << " 15: PixelFormat_YCbCr422_8" << std::endl;
+				std::cout << "Enter Selection: ";
+				std::cin >> rawPixelType_int;
+			}
 
-			std::cout << "Select Target File Format to convert to: " << std::endl;
-			std::cout << " 1: TIFF" << std::endl;
-			std::cout << " 2: PNG" << std::endl;
+			if (newFileFormat_int == NO_FILEFORMAT_GIVEN)
+			{
+				std::cout << "Select Target File Format to convert to: " << std::endl;
+				std::cout << " 1: TIFF" << std::endl;
+				std::cout << " 2: PNG" << std::endl;
 #ifdef PYLON_WIN_BUILD
-			std::cout << " 3: BMP" << std::endl;
-			std::cout << " 4: JPG" << std::endl;
+				std::cout << " 3: BMP" << std::endl;
+				std::cout << " 4: JPG" << std::endl;
 #endif
-			std::cout << "Enter Selection: ";
-			std::cin >> newFileFormat_int;
+				std::cout << "Enter Selection: ";
+				std::cin >> newFileFormat_int;
+			}
 		}
 
 		if (batchMode == false)
@@ -635,34 +669,60 @@ int main(int argc, char* argv[])
 #endif
 			for (size_t i = 0; i < fileNames.size(); i++)
 			{
+				bool isRaw = false;
+				bool hasInfo = false;
+
 				rawFileName = fileNames[i];
 
-				if (fileNames[i].find(parsePrefix) != std::string::npos)
+				// first check if the file is .raw
+				if (fileNames[i].find(".raw") != std::string::npos)
+					isRaw = true;
+
+				// then make sure we have all the info we need
+				if (parseMode == true)
 				{
-					if (silent == false)
+					if (ParseFileName(rawFileName, parsePrefix, PARSE_NUM_FIELDS, rawWidth, rawHeight, rawPixelType_int, newFileFormat_int) == true)
+					{
+						rawPixelType = PixelTypeFromInt(rawPixelType_int);
+						newFileFormat = FileFormatFromInt(newFileFormat_int);
+						hasInfo = true;
+					}
+					else
 					{
 						std::cout << std::endl;
-						std::cout << "Converting File: " << rawFileName << "..." << std::endl;
+						std::cout << "Could not parse file name: " << rawFileName << std::endl;
 					}
-
-					if (parseMode == true)
-					{
-						if (ParseFileName(rawFileName, parsePrefix, PARSE_NUM_FIELDS, rawWidth, rawHeight, rawPixelType_int, newFileFormat_int) == false)
-							throw std::runtime_error("ParseFileName() failed.");
-					}
-
+				}
+				else
+				{
 					rawPixelType = PixelTypeFromInt(rawPixelType_int);
 					newFileFormat = FileFormatFromInt(newFileFormat_int);
+					hasInfo = true;
+				}
 
-					if (RawFileConverter(rawFileName, rawWidth, rawHeight, rawPixelType, newFileFormat) == false)
-						throw std::runtime_error("RawFileConverter() failed.");
+				// if the file is raw and we have the info, try converting it.
+				if (isRaw == true && hasInfo == true)
+				{
+					if (RawFileConverter(rawFileName, rawWidth, rawHeight, rawPixelType, newFileFormat) == true)
+					{
+						if (silent == false)
+						{
+							std::cout << std::endl;
+							std::cout << "Converted File: " << rawFileName << "..." << std::endl;
+						}
+					}
+					else
+					{
+						std::cout << std::endl;
+						std::cout << "Could not convert file: " << rawFileName << "..." << std::endl;
+					}
 				}
 				else
 				{
 					if (silent == false)
 					{
 						std::cout << std::endl;
-						std::cout << "Skipping File: " << rawFileName << "..." << std::endl;
+						std::cout << "Skipping File (not .raw): " << rawFileName << "..." << std::endl;
 					}
 				}
 			}
