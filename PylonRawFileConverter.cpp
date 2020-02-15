@@ -16,7 +16,7 @@
 // limitations under the License.
 //
 
-#include "LoadRawFile.h"
+#include "LoadPylonRawFile.h"
 
 // Include files to use the PYLON API.
 #include <pylon/PylonIncludes.h>
@@ -150,7 +150,7 @@ bool RawFileConverter(std::string fileName, uint32_t imageWidth, uint32_t imageH
 
 		Pylon::CPylonImage tempImage;
 
-		LoadRawFile::Load(fileName.c_str(), tempImage, imageWidth, imageHeight, imagePixelFormat);
+		LoadPylonRawFile::Load(fileName.c_str(), tempImage, imageWidth, imageHeight, imagePixelFormat);
 
 		std::string newFileName = "";
 		size_t lastdot = fileName.find_last_of(".");

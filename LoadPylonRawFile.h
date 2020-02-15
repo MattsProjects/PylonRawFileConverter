@@ -1,5 +1,6 @@
-// LoadRawFile.h
+// LoadPylonRawFile.h
 // Loads a Pylon-Saved .raw file from disk.
+// Note: This is designed to work with .raw file saved _only_ by Pylon.
 //
 // Copyright (c) 2019 Matthew Breit - matt.breit@baslerweb.com or matt.breit@gmail.com
 //
@@ -21,7 +22,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace LoadRawFile
+namespace LoadPylonRawFile
 {
 	void Load(const Pylon::String_t& fileName, Pylon::CPylonImage& image, uint32_t width, uint32_t height, Pylon::EPixelType pixelType)
 	{

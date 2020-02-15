@@ -15,7 +15,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LoadRawFile.h">
+    <ClInclude Include="LoadPylonRawFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
