@@ -16,6 +16,8 @@
 // limitations under the License.
 //
 
+#include "LoadRawFile.h"
+
 // Include files to use the PYLON API.
 #include <pylon/PylonIncludes.h>
 #include <iostream>
@@ -100,109 +102,7 @@ Pylon::EImageFileFormat FileFormatFromInt(int fileFormatID)
 	}
 }
 
-void LoadRaw(const Pylon::String_t& fileName, Pylon::CPylonImage& image, uint32_t width, uint32_t height, Pylon::EPixelType pixelType)
-{
-	std::string errorMessage = "ERROR: ";
-	errorMessage.append(__FUNCTION__);
-	errorMessage.append("(): ");
 
-	std::ifstream myFile;
-	char *pBuffer = NULL;
-
-	Pylon::PylonAutoInitTerm autoInitTerm;
-
-	try
-	{
-		myFile.open(fileName.c_str(), std::ifstream::binary);
-
-		if (myFile)
-		{
-			uint32_t fileSize = 0;
-			uint32_t imageSize = 0;
-
-			myFile.seekg(0, myFile.end);
-			fileSize = myFile.tellg();
-			myFile.seekg(0, myFile.beg);
-
-			if (Pylon::BitPerPixel(pixelType) == 8)
-				imageSize = (width * height);
-			else if (Pylon::BitPerPixel(pixelType) == 10)
-				imageSize = (width * height) * 1.25;
-			else if (Pylon::BitPerPixel(pixelType) == 12)
-				imageSize = (width * height) * 1.5;
-			else if (Pylon::BitPerPixel(pixelType) == 16)
-				imageSize = (width * height) * 2;
-			else
-			{
-				errorMessage.append("Less than 8 bits per pixel or more than 16bits per pixel is not supported yet.");
-				myFile.close();
-				throw std::runtime_error(errorMessage.c_str());
-			}
-
-			if ((double)fileSize != imageSize)
-			{
-				errorMessage.append("File size does not match image size!");
-				errorMessage.append(" File: ");
-				errorMessage.append(std::to_string(fileSize));
-				errorMessage.append(" Image: ");
-				errorMessage.append(std::to_string(imageSize));
-				myFile.close();
-				throw std::runtime_error(errorMessage.c_str());
-			}
-
-			pBuffer = new char[fileSize];
-			myFile.read(pBuffer, fileSize);
-
-			if (!myFile)
-			{
-				errorMessage.append("File could not be read entirely!");
-				errorMessage.append(" Read: ");
-				errorMessage.append(std::to_string(myFile.gcount()));
-				errorMessage.append(" Size: ");
-				errorMessage.append(std::to_string(fileSize));
-				myFile.close();
-				delete[] pBuffer;
-				throw std::runtime_error(errorMessage.c_str());
-			}
-
-			Pylon::CPylonImage temp;
-			temp.AttachUserBuffer(pBuffer, imageSize, pixelType, width, height, 0);
-			image.CopyImage(temp);
-
-			delete[] pBuffer;
-			myFile.close();
-		}
-		else
-		{
-			errorMessage.append("File could not be opened!");
-			errorMessage.append(" File Name: ");
-			errorMessage.append(fileName);
-			myFile.close();
-			throw std::runtime_error(errorMessage.c_str());
-		}
-	}
-	catch (GenICam::GenericException &e)
-	{
-		// Error handling.
-		std::cerr << "An exception occurred: " << e.GetDescription() << std::endl;
-		delete[] pBuffer;
-		myFile.close();
-	}
-	catch (std::runtime_error &e)
-	{
-		// Error handling.
-		std::cerr << "An exception occurred: " << e.what() << std::endl;
-		delete[] pBuffer;
-		myFile.close();
-	}
-	catch (...)
-	{
-		// Error handling.
-		std::cerr << "An unknown exception occurred: " << std::endl;
-		delete[] pBuffer;
-		myFile.close();
-	}
-}
 
 bool RawFileConverter(std::string fileName, uint32_t imageWidth, uint32_t imageHeight, Pylon::EPixelType imagePixelFormat, Pylon::EImageFileFormat destinationFileFormat)
 {
@@ -250,7 +150,7 @@ bool RawFileConverter(std::string fileName, uint32_t imageWidth, uint32_t imageH
 
 		Pylon::CPylonImage tempImage;
 
-		LoadRaw(fileName.c_str(), tempImage, imageWidth, imageHeight, imagePixelFormat);
+		LoadRawFile::Load(fileName.c_str(), tempImage, imageWidth, imageHeight, imagePixelFormat);
 
 		std::string newFileName = "";
 		size_t lastdot = fileName.find_last_of(".");
